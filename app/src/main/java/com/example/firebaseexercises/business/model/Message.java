@@ -1,5 +1,11 @@
 package com.example.firebaseexercises.business.model;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
 public class Message {
 
     private String id;
@@ -15,8 +21,18 @@ public class Message {
     }
 
     public Message(String username, String content){
+        this.id = null;
         this.username = username;
         this.content = content;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("username", username);
+        result.put("content", content);
+        return result;
     }
 
     public String getUsername() {
@@ -41,5 +57,14 @@ public class Message {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", content='" + content + '\'' +
+                '}';
     }
 }

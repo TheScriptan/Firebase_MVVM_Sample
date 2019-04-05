@@ -26,6 +26,8 @@ public class MessageViewModel extends ViewModel {
         repository.addMessage(message);
     }
 
+    public void updateMessage(Message message) {repository.updateMessage(message);}
+
     public void deleteMessage(String uid){
         repository.deleteMessage(uid);
     }

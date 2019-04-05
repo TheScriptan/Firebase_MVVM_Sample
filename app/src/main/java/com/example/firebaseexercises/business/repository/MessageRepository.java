@@ -38,6 +38,8 @@ public class MessageRepository {
         fdb.addMessage(message);
     }
 
+    public void updateMessage(Message message) {fdb.updateMessage(message);}
+
     public void deleteMessage(String uid){
         fdb.deleteMessage(uid);
     }

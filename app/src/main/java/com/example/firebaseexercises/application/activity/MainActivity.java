@@ -1,6 +1,7 @@
 package com.example.firebaseexercises.application.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,29 +33,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         //UI Setup
         EditText editText = findViewById(R.id.editText);
         Button button = findViewById(R.id.button);
         button.setEnabled(false);
 
-        //RecyclerView setup
-        RecyclerView recyclerView = findViewById(R.id.stringRecyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MessageAdapter mAdapter = new MessageAdapter();
-        recyclerView.setAdapter(mAdapter);
-
         //ViewModel setup
-
         MessageViewModelFactory messageViewModelFactory = InjectorUtils.provideMessageViewModelFactory();
         MessageViewModel messageViewModel = ViewModelProviders.of(this, messageViewModelFactory).get(MessageViewModel.class);
 
-        messageViewModel.getMessageList().observe(this, new Observer<List<Message>>() {
-            @Override
-            public void onChanged(List<Message> messages) {
-                mAdapter.setMessageList(messages);
-            }
-        });
+        //RecyclerView setup
+        RecyclerView recyclerView = findViewById(R.id.stringRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MessageAdapter mAdapter = new MessageAdapter(messageViewModel);
+        recyclerView.setAdapter(mAdapter);
+
+        messageViewModel.getMessageList().observe(this, mAdapter::setMessageList);
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -81,21 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
         button.setOnClickListener((View v) -> {
             if (!TextUtils.isEmpty(editText.getText())) {
-                Message message = new Message("Ainis", editText.getText().toString());
+                Message message = new Message(InjectorUtils.provideFirebaseDatabase().getLoggedUser().getEmail(), editText.getText().toString());
                 messageViewModel.addMessage(message);
                 editText.setText("");
-            }
-        });
-
-        //TEST
-        mAdapter.setItemClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "ID: " + recyclerView.indexOfChild(v), Toast.LENGTH_SHORT).show();
-                int index = recyclerView.indexOfChild(v);
-                Message message = mAdapter.getMessageByIndex(index);
-                mAdapter.removeMessage(index);
-                messageViewModel.deleteMessage(message.getId());
             }
         });
     }
